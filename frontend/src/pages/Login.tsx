@@ -1,12 +1,39 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Mail, Lock } from 'lucide-react';
+import axios from 'axios';
 
 const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/login', {
+        email,
+        password,
+      });
+
+      // Assuming your backend sends back a token on successful login
+      const { token } = response.data;
+      localStorage.setItem('authToken', token);
+
+      // Redirect to dashboard or any protected route
+      navigate('/dashboard');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.message || 'Invalid credentials');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark-200 p-4">
       <div className="absolute top-0 left-0 right-0">
@@ -17,12 +44,12 @@ const Login: React.FC = () => {
           </Link>
         </div>
       </div>
-      
+
       <div className="absolute inset-0 bg-dark-200 overflow-hidden">
         <div className="absolute top-1/3 -left-40 w-96 h-96 rounded-full bg-yellow-500/5 blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-60 h-60 rounded-full bg-yellow-600/5 blur-3xl"></div>
       </div>
-      
+
       <Card className="relative glass-morphism w-full max-w-md p-8 yellow-glow">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold">
@@ -30,23 +57,25 @@ const Login: React.FC = () => {
           </h2>
           <p className="text-gray-400 mt-2">Sign in to your account</p>
         </div>
-        
-        <form className="space-y-4">
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-gray-300">Email</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <Mail className="h-5 w-5" />
               </div>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="Enter your email" 
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 bg-dark-300/50 border-gray-700 focus:border-yellow-500 focus:ring-yellow-500/20"
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <label htmlFor="password" className="text-sm font-medium text-gray-300">Password</label>
@@ -58,20 +87,24 @@ const Login: React.FC = () => {
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <Lock className="h-5 w-5" />
               </div>
-              <Input 
-                id="password" 
-                type="password" 
-                placeholder="Enter your password" 
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="pl-10 bg-dark-300/50 border-gray-700 focus:border-yellow-500 focus:ring-yellow-500/20"
               />
             </div>
           </div>
-          
-          <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-dark-100">
+
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+          <Button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-dark-100">
             Sign In
           </Button>
         </form>
-        
+
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-400">
             Don't have an account?{' '}

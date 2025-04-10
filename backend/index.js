@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
+const loginRoute = require('./routes/login'); // path as needed
 
 const app = express();
 const PORT = 5000;
@@ -13,6 +14,7 @@ app.use(bodyParser.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api', loginRoute); // your API base route
 
 // MongoDB Connect
 mongoose.connect('mongodb://127.0.0.1:27017/sikshaSathi', {
