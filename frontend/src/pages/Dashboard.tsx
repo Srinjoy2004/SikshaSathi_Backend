@@ -1,4 +1,4 @@
-
+import { useEffect } from 'react';
 import React, { useState } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -85,6 +85,29 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/session', {
+          method: 'GET',
+          credentials: 'include', // ✅ This allows cookies/session to be sent
+        });
+        const data = await res.json();
+        if (data?.user?.name) {
+          setUserName(data.user.name);
+        }
+      } catch (error) {
+        console.error('Failed to fetch session:', error);
+      }
+    };
+  
+    fetchSession();
+  }, []);
+  
+
+
   return (
     <div className="min-h-screen bg-dark-100 flex">
       <DashboardSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
@@ -94,7 +117,8 @@ const Dashboard: React.FC = () => {
         
         <main className="p-6">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-2">Welcome back, Dr. Rajesh</h1>
+          <h1 className="text-2xl font-bold mb-2">Welcome back{userName ? `, ${userName}` : ''}</h1>
+
             <p className="text-gray-400">Here's what's happening with your classes today</p>
           </div>
           
