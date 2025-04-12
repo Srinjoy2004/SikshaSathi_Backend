@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from flask_cors import CORS
+
 
 # Predefined master/AI-generated text to compare against
 AI_GENERATED_TEXT = """
@@ -11,6 +13,7 @@ Plants use photosynthesis to turn sunlight into chemical energy stored in glucos
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:8080"], supports_credentials=True)
 
 def check_similarity(student_text: str, ai_generated_text: str, threshold: float = 0.8):
     student_embedding = model.encode([student_text])
@@ -43,5 +46,5 @@ def similarity_api():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
 

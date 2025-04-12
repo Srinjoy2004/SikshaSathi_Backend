@@ -175,7 +175,28 @@ const PlagiarismDetection = () => {
       if (extractedText) {
         // alert("Extracted Text:\n\n" + extractedText);
         console.log(extractedText);
-        return extractedText;
+
+// Send to plagiarism detection API
+try {
+  const response = await fetch('http://127.0.0.1:5000/check-similarity', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ student_text: extractedText }),
+  });
+
+  const result = await response.json();
+  console.log("🔍 Similarity Check Result:", result);
+
+  // Optional: Show it in alert or UI
+  alert(`Similarity Score: ${result.similarity_score}%\nFeedback: ${result.feedback}`);
+
+  return result;
+} catch (err) {
+  console.error("❌ Failed to send text to similarity API", err);
+  return { feedback: "Error occurred", similarity_score: 0, verdict: "Error" };
+}
       } else {
         alert("No readable text found or something went wrong.");
       }
