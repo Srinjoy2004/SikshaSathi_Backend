@@ -1,8 +1,8 @@
-
-import React from 'react';
-import { 
-  Bell, 
-  Search, 
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Bell,
+  Search,
   Menu,
   User,
   ChevronDown,
@@ -22,18 +22,53 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ toggleSidebar }) => {
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/session', {
+          method: 'GET',
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error('Failed to load session user:', err);
+      }
+    };
+
+    fetchSession();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('http://localhost:5000/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <header className="h-16 bg-dark-200 border-b border-gray-800 flex items-center justify-between px-4 sticky top-0 z-30">
       <div className="flex items-center">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={toggleSidebar}
           className="lg:hidden text-gray-400 hover:text-white mr-4"
         >
           <Menu className="h-5 w-5" />
         </Button>
-        
+
         <div className="relative hidden md:block">
           <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
           <input
@@ -43,13 +78,13 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ toggleSidebar }) => {
           />
         </div>
       </div>
-      
+
       <div className="flex items-center space-x-3">
         <Button variant="ghost" size="icon" className="relative text-gray-400 hover:text-white">
           <Bell className="h-5 w-5" />
           <span className="absolute top-1 right-1 w-2 h-2 bg-yellow-500 rounded-full"></span>
         </Button>
-        
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2 text-gray-200 hover:text-white">
@@ -57,8 +92,8 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ toggleSidebar }) => {
                 <User className="h-4 w-4 text-gray-400" />
               </div>
               <div className="hidden md:block text-left">
-                <p className="text-sm">Dr. Rajesh Sharma</p>
-                <p className="text-xs text-gray-500">Administrator</p>
+                <p className="text-sm">{user?.name || 'Loading...'}</p>
+                <p className="text-xs text-gray-500">{user?.role || ''}</p>
               </div>
               <ChevronDown className="h-4 w-4 text-gray-500" />
             </Button>
@@ -70,7 +105,10 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ toggleSidebar }) => {
             <DropdownMenuItem className="hover:bg-dark-300 focus:bg-dark-300 cursor-pointer">Settings</DropdownMenuItem>
             <DropdownMenuItem className="hover:bg-dark-300 focus:bg-dark-300 cursor-pointer">Subscription</DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-800" />
-            <DropdownMenuItem className="hover:bg-dark-300 focus:bg-dark-300 cursor-pointer text-red-400 hover:text-red-300">
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="hover:bg-dark-300 focus:bg-dark-300 cursor-pointer text-red-400 hover:text-red-300"
+            >
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

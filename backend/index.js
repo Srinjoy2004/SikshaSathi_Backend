@@ -60,11 +60,15 @@ app.get('/api/auth/session', (req, res) => {
   }
 });
 
+//logout
+const logoutRoute = require('./routes/logout');
+
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api', loginRoute);
 app.use('/api/users', userRoutes); // this gives /api/users/me
-
+app.use('/api/auth', logoutRoute); // Endpoint: /api/auth/logout
 // MongoDB Connection
 mongoose.connect('mongodb://127.0.0.1:27017/sikshaSathi', {
   useNewUrlParser: true,
