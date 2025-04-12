@@ -16,7 +16,7 @@ const app = express();
 const PORT = 5000;
 
 // Middleware
-const allowedOrigins = ['http://localhost:8080', 'http://localhost:3000'];
+const allowedOrigins = ['http://localhost:8080'];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -32,14 +32,7 @@ app.use(cors({
 app.use(bodyParser.json());
 
 
-app.get('/api/auth/session', (req, res) => {
-  if (req.session && req.session.user) {
-    res.json({ user: req.session.user });
-  } else {
-    res.status(401).json({ message: 'No session found' });
-    console.log("no session found")
-  }
-});
+
 
 // Session Middleware (important!)
 app.use(session({
@@ -52,10 +45,20 @@ app.use(session({
   }),
   cookie: {
     maxAge: 1000 * 60 * 60, // 1 hour
-    httpOnly: true,
-    secure: false, // set true in production with HTTPS
+    httpOnly: true, // ✅ allow frontend JS to access cookie if needed
+    secure: false,   // ✅ allow cookie over HTTP (set to true in HTTPS)
+    sameSite: 'lax'  // ✅ allow cross-origin credentials
   }
 }));
+
+app.get('/api/auth/session', (req, res) => {
+  if (req.session && req.session.user) {
+    res.json({ user: req.session.user });
+  } else {
+    res.status(401).json({ message: 'No session found' });
+    console.log("no session found")
+  }
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

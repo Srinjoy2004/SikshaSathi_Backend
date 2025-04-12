@@ -15,24 +15,22 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
+  
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
-        email,
-        password,
-      });
-
-      // Assuming your backend sends back a token on successful login
-      const { token } = response.data;
-      localStorage.setItem('authToken', token);
-
-      // Redirect to dashboard or any protected route
+      const response = await axios.post(
+        'http://localhost:5000/api/login',
+        { email, password },
+        { withCredentials: true } // ✅ cookie gets saved!
+      );
+  
+      // ✅ Session is now saved, redirect to dashboard
       navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
       setError(err.response?.data?.message || 'Invalid credentials');
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-dark-200 p-4">

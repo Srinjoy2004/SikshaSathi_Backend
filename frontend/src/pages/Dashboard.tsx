@@ -92,7 +92,8 @@ const Dashboard: React.FC = () => {
       try {
         const res = await fetch('http://localhost:5000/api/auth/session', {
           method: 'GET',
-          credentials: 'include', // ✅ This allows cookies/session to be sent
+          //credentials: 'include', // ✅ This allows cookies/session to be sent
+          credentials: 'include', // 🔥 critical!
         });
         const data = await res.json();
         if (data?.user?.name) {
